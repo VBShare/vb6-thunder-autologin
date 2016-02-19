@@ -7,42 +7,12 @@ Begin VB.Form Form1
    ClientHeight    =   8385
    ClientLeft      =   0
    ClientTop       =   0
-   ClientWidth     =   9105
+   ClientWidth     =   5400
    Icon            =   "Form1.frx":0000
    LinkTopic       =   "Form1"
    ScaleHeight     =   8385
-   ScaleWidth      =   9105
+   ScaleWidth      =   5400
    StartUpPosition =   3  '窗口缺省
-   Begin VB.TextBox Text5 
-      Height          =   615
-      Left            =   5880
-      MultiLine       =   -1  'True
-      ScrollBars      =   3  'Both
-      TabIndex        =   21
-      Top             =   2880
-      Visible         =   0   'False
-      Width           =   1815
-   End
-   Begin VB.TextBox Text4 
-      Height          =   735
-      Left            =   5880
-      MultiLine       =   -1  'True
-      ScrollBars      =   3  'Both
-      TabIndex        =   20
-      Top             =   2040
-      Visible         =   0   'False
-      Width           =   1815
-   End
-   Begin VB.TextBox Text3 
-      Height          =   735
-      Left            =   5880
-      MultiLine       =   -1  'True
-      ScrollBars      =   3  'Both
-      TabIndex        =   19
-      Top             =   1200
-      Visible         =   0   'False
-      Width           =   1815
-   End
    Begin VB.Frame Frame1 
       BackColor       =   &H00FFFFFF&
       Caption         =   "状态"
@@ -51,7 +21,7 @@ Begin VB.Form Form1
       TabIndex        =   16
       Top             =   4320
       Width           =   5055
-      Begin VB.ListBox List1 
+      Begin VB.ListBox lstStatus 
          Appearance      =   0  'Flat
          BeginProperty Font 
             Name            =   "楷体"
@@ -66,7 +36,7 @@ Begin VB.Form Form1
          Height          =   3390
          ItemData        =   "Form1.frx":030A
          Left            =   120
-         List            =   "Form1.frx":030C
+         List            =   "Form1.frx":0311
          TabIndex        =   17
          Top             =   240
          Width           =   4815
@@ -78,13 +48,13 @@ Begin VB.Form Form1
       ForeColor       =   &H80000008&
       Height          =   975
       Left            =   0
-      Picture         =   "Form1.frx":030E
+      Picture         =   "Form1.frx":0320
       ScaleHeight     =   945
-      ScaleWidth      =   5385
+      ScaleWidth      =   5265
       TabIndex        =   9
       Top             =   0
-      Width           =   5415
-      Begin VB.Label Label6 
+      Width           =   5295
+      Begin VB.Label lblMinify 
          BackStyle       =   0  'Transparent
          Caption         =   "━"
          BeginProperty Font 
@@ -103,7 +73,7 @@ Begin VB.Form Form1
          Top             =   120
          Width           =   255
       End
-      Begin VB.Label Label5 
+      Begin VB.Label lblClose 
          BackStyle       =   0  'Transparent
          Caption         =   "╳"
          BeginProperty Font 
@@ -161,17 +131,17 @@ Begin VB.Form Form1
       TabIndex        =   4
       Top             =   1920
       Width           =   5055
-      Begin VB.ListBox List2 
+      Begin VB.ListBox lstAccout 
          Appearance      =   0  'Flat
          Height          =   1290
-         ItemData        =   "Form1.frx":6D89
+         ItemData        =   "Form1.frx":6D9B
          Left            =   120
-         List            =   "Form1.frx":6D8B
+         List            =   "Form1.frx":6DA2
          TabIndex        =   18
          Top             =   840
          Width           =   4815
       End
-      Begin VB.TextBox Text2 
+      Begin VB.TextBox txtPass 
          Appearance      =   0  'Flat
          BackColor       =   &H00FFFFFF&
          BeginProperty Font 
@@ -192,7 +162,7 @@ Begin VB.Form Form1
          Top             =   360
          Width           =   1695
       End
-      Begin VB.TextBox Text1 
+      Begin VB.TextBox txtNo 
          Appearance      =   0  'Flat
          BackColor       =   &H00FFFFFF&
          BeginProperty Font 
@@ -339,12 +309,12 @@ Begin VB.Form Form1
       ForeColor       =   &H80000008&
       Height          =   375
       Left            =   0
-      Picture         =   "Form1.frx":6D8D
+      Picture         =   "Form1.frx":6DB1
       ScaleHeight     =   345
-      ScaleWidth      =   5385
+      ScaleWidth      =   5265
       TabIndex        =   10
       Top             =   8040
-      Width           =   5415
+      Width           =   5295
       Begin VB.Label Label8 
          BackStyle       =   0  'Transparent
          Caption         =   "QQ：251121753"
@@ -362,7 +332,7 @@ Begin VB.Form Form1
          Left            =   3360
          TabIndex        =   15
          Top             =   75
-         Width           =   2055
+         Width           =   1695
       End
    End
    Begin VB.Timer Timer3 
@@ -370,7 +340,7 @@ Begin VB.Form Form1
       Left            =   1200
       Top             =   840
    End
-   Begin VB.Label Label7 
+   Begin VB.Label lblNewMovies 
       Alignment       =   2  'Center
       BackColor       =   &H00FFFFFF&
       Caption         =   "最新电影"
@@ -409,7 +379,7 @@ Begin VB.Form Form1
       Y1              =   960
       Y2              =   8040
    End
-   Begin VB.Label Label4 
+   Begin VB.Label lblFreeAccount 
       Alignment       =   2  'Center
       BackStyle       =   0  'Transparent
       Caption         =   "免费账号   "
@@ -440,191 +410,197 @@ Private Declare Function FindWindow Lib "user32" Alias "FindWindowA" (ByVal lpCl
 Private Declare Function SetForegroundWindow Lib "user32" (ByVal hwnd As Long) As Long
 Private Declare Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
 Private Declare Function ShellExecute Lib "shell32.dll" Alias "ShellExecuteA" (ByVal hwnd As Long, ByVal lpOperation As String, ByVal lpFile As String, ByVal lpParameters As String, ByVal lpDirectory As String, ByVal nShowCmd As Long) As Long
-Dim a As Long
-Dim wshshell
 
+Private hwdThunder As Long
+Private wshshell
+Private mMainPageCode As String, mDetailPageCode As String, mItemCode As String
+Private mLogPath As String
+
+Public web As New webCode
+Public file As New CFile
 
 Private Sub Form_Load()
-    Set wshshell = CreateObject("WScript.Shell")
+  Set wshshell = CreateObject("WScript.Shell")
+  mLogPath = App.Path & "\log.txt"
+  web.TimeOut = 40
 End Sub
 
 Private Sub Form_Unload(Cancel As Integer)
-    End
+  End
+End Sub
+
+Private Sub lblFreeAccount_Click()
+  mMainPageCode = ""
+  mDetailPageCode = ""
+  mItemCode = ""
+  lstStatus.Clear
+  lstAccout.Clear
+  lstStatus.AddItem "正在打开www.521xunlei.com(爱密码迅雷帐号分享平台)并获取源码  " & Time
+  mMainPageCode = web.GetHTMLCode("http://www.521xunlei.com")
+  If file.FileExists(mLogPath) Then
+    file.Delete mLogPath
+  End If
+  file.WriteLineToTextFile mLogPath, "[Page1]"
+  file.WriteLineToTextFile mLogPath, mMainPageCode
+  buzhou1
 End Sub
 
 
-Private Sub Label4_Click()
-    Text3.Text = ""
-    Text4.Text = ""
-    Text5.Text = ""
-    List1.Clear
-    List2.Clear
-    List1.AddItem "正在打开www.521xunlei.com(爱密码迅雷帐号分享平台)并获取源码  " & Time
-    Set xmlHTTP1 = CreateObject("Microsoft.XMLHTTP")
-    xmlHTTP1.Open "get", "http://www.521xunlei.com", True
-    xmlHTTP1.send
-    While xmlHTTP1.readyState <> 4
-        DoEvents
-    Wend
-    Text3.Text = xmlHTTP1.responseText
-    Set xmlHTTP1 = Nothing
-    buzhou1
+Private Sub lblFreeAccount_DblClick()
+  ShellExecute Me.hwnd, "open", "http://www.521xunlei.com/", "", "", 5
 End Sub
 
 
-Private Sub Label4_DblClick()
-    ShellExecute Me.hwnd, "open", "http://www.521xunlei.com/", "", "", 5
+Private Sub lblClose_Click()
+  End
 End Sub
 
-Private Sub Label5_Click()
-    End
+Private Sub lblClose_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
+  lblClose.ForeColor = vbRed
 End Sub
 
-Private Sub Label5_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
-    Label5.ForeColor = vbRed
+Private Sub lblMinify_Click()
+  Me.WindowState = 1
 End Sub
 
-Private Sub Label6_Click()
-    Me.WindowState = 1
+Private Sub lblMinify_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
+  lblMinify.ForeColor = vbGreen
 End Sub
 
-Private Sub Label6_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
-    Label6.ForeColor = vbGreen
+Private Sub lblNewMovies_Click()
+  ShellExecute Me.hwnd, "open", "http://www.dytt8.net//", "", "", 5
 End Sub
 
-Private Sub Label7_Click()
-    ShellExecute Me.hwnd, "open", "http://www.dytt8.net//", "", "", 5
-End Sub
-
-Private Sub List2_Click()
-Dim strz As String
-Dim i As Integer, i2 As Integer
-Dim str1 As String, str2 As String
-strz = List2.List(List2.ListIndex)
-For i = 1 To Len(strz)
+Private Sub lstAccout_Click()
+  Dim strz As String
+  Dim i As Integer, i2 As Integer
+  Dim str1 As String, str2 As String
+  strz = lstAccout.List(lstAccout.ListIndex)
+  For i = 1 To Len(strz)
     If Asc(Mid(strz, i, 1)) >= 48 And Asc(Mid(strz, i, 1)) <= 122 Then
-            str1 = str1 & Mid(strz, i, 1)
-            i2 = i
-            On Error GoTo 11:
-            If Asc(Mid(strz, i + 1, 1)) < 48 Or Asc(Mid(strz, i + 1, 1)) > 122 Then
-                Exit For
-            End If
+      str1 = str1 & Mid(strz, i, 1)
+      i2 = i
+      On Error GoTo ExitSub
+      If Asc(Mid(strz, i + 1, 1)) < 48 Or Asc(Mid(strz, i + 1, 1)) > 122 Then
+        Exit For
+      End If
     End If
-Next i
-For i = i2 + 1 To Len(strz)
-     If Asc(Mid(strz, i, 1)) >= 48 And Asc(Mid(strz, i, 1)) <= 122 Then
-            str2 = str2 & Mid(strz, i, 1)
+  Next i
+  For i = i2 + 1 To Len(strz)
+    If Asc(Mid(strz, i, 1)) >= 48 And Asc(Mid(strz, i, 1)) <= 122 Then
+      str2 = str2 & Mid(strz, i, 1)
     End If
-Next i
-Text1.Text = Trim(str1)
-Text2.Text = Trim(str2)
-11: End Sub
+  Next i
+  txtNo.Text = Trim(str1)
+  txtPass.Text = Trim(str2)
+ExitSub:
+End Sub
 
 Private Sub Picture1_MouseMove(Button As Integer, Shift As Integer, X As Single, Y As Single)
-Static FormX%, FormY%
-If Button = 1 Then
+  Static FormX As Long, FormY As Long
+  If Button = 1 Then
     Me.Move Me.Left - FormX + X, Me.Top - FormY + Y
-ElseIf Button = 0 Then
+  ElseIf Button = 0 Then
     FormX = X
     FormY = Y
-End If
-Label5.ForeColor = vbWhite
-Label6.ForeColor = vbWhite
+  End If
+  lblClose.ForeColor = vbWhite
+  lblMinify.ForeColor = vbWhite
 End Sub
 
 Private Sub Text1_Change()
-Timer1.Enabled = False
-Timer2.Enabled = True
-Timer3.Enabled = False
+  Timer1.Enabled = False
+  Timer2.Enabled = True
+  Timer3.Enabled = False
 End Sub
 
-Private Sub Text1_Click()
-Dim strz As String
-Dim i As Integer, i2 As Integer
-Dim str1 As String, str2 As String
-strz = Clipboard.GetText(vbCFText)
-For i = 1 To Len(strz)
+Private Sub txtNo_Click()
+  Dim strz As String
+  Dim i As Integer, i2 As Integer
+  Dim str1 As String, str2 As String
+  strz = Clipboard.GetText(vbCFText)
+  For i = 1 To Len(strz)
     If Asc(Mid(strz, i, 1)) >= 48 And Asc(Mid(strz, i, 1)) <= 122 Then
-            str1 = str1 & Mid(strz, i, 1)
-            i2 = i
-            On Error GoTo 11:
-            If Asc(Mid(strz, i + 1, 1)) < 48 Or Asc(Mid(strz, i + 1, 1)) > 122 Then
-                Exit For
-            End If
+      str1 = str1 & Mid(strz, i, 1)
+      i2 = i
+      On Error GoTo ExitSub
+      If Asc(Mid(strz, i + 1, 1)) < 48 Or Asc(Mid(strz, i + 1, 1)) > 122 Then
+        Exit For
+      End If
     End If
-Next i
-For i = i2 + 1 To Len(strz)
-     If Asc(Mid(strz, i, 1)) >= 48 And Asc(Mid(strz, i, 1)) <= 122 Then
-            str2 = str2 & Mid(strz, i, 1)
+  Next i
+  For i = i2 + 1 To Len(strz)
+    If Asc(Mid(strz, i, 1)) >= 48 And Asc(Mid(strz, i, 1)) <= 122 Then
+      str2 = str2 & Mid(strz, i, 1)
     End If
-Next i
-Text1.Text = str1
-Text2.Text = str2
-11: End Sub
+  Next i
+  txtNo.Text = str1
+  txtPass.Text = str2
+ExitSub:
+End Sub
 
 Private Sub Timer1_Timer()
-Static ci As Integer
-Static zong As Integer
-a = FindWindow(vbNullString, "迅雷7登录") '得到登录界面句柄
-If a <> 0 Then
-    SetForegroundWindow a  '让登录界面切换到前台
-     Sleep 1000
+  Static ci As Integer
+  Static zong As Integer
+  hwdThunder = FindWindow(vbNullString, "迅雷7登录") '得到登录界面句柄
+  If hwdThunder <> 0 Then
+    SetForegroundWindow hwdThunder  '让登录界面切换到前台
+    Sleep 1000
     wshshell.SendKeys "{Tab 5}"
     Sleep 500
     wshshell.SendKeys "{enter}"
     Sleep 500
-    a = FindWindow(vbNullString, "迅雷7登录")
-    If a = 0 Then
-        List1.AddItem "于" & Time & "被挤下线，已成功帮您重新登录。"
-        ci = ci + 1
-        zong = zong + 1
-        Label1.Caption = zong
+    hwdThunder = FindWindow(vbNullString, "迅雷7登录")
+    If hwdThunder = 0 Then
+      lstStatus.AddItem "于" & Time & "被挤下线，已成功帮您重新登录。"
+      ci = ci + 1
+      zong = zong + 1
+      Label1.Caption = zong
     Else
-        If ci = 2 Then
-            List1.AddItem "于" & Time & "被挤下线，自动登录失败，尝试备用帐号登录。。。"
-            Timer1.Enabled = False
-            Timer2.Enabled = True
-            Timer3.Enabled = False
-        End If
+      If ci = 2 Then
+        lstStatus.AddItem "于" & Time & "被挤下线，自动登录失败，尝试备用帐号登录。。。"
+        Timer1.Enabled = False
+        Timer2.Enabled = True
+        Timer3.Enabled = False
+      End If
     End If
-Else
+  Else
     ci = 0
-End If
- 
+  End If
 End Sub
 
 Private Sub Timer2_Timer()
-Static sj As Integer
-Static sb As Integer
-Static success As Boolean
-Static xs As Boolean
-a = FindWindow(vbNullString, "迅雷7登录") '得到登录界面句柄
-If a <> 0 And Text1.Text <> "" Then
-    SetForegroundWindow a  '让登录界面切换到前台
-        Sleep 1000
+  Static sj As Integer
+  Static sb As Integer
+  Static success As Boolean
+  Static xs As Boolean
+  hwdThunder = FindWindow(vbNullString, "迅雷7登录") '得到登录界面句柄
+  If hwdThunder <> 0 And txtNo.Text <> "" Then
+    SetForegroundWindow hwdThunder  '让登录界面切换到前台
+    Sleep 1000
     If sb = 3 Then
-        List1.AddItem "登录失败，帐号或着密码错误，请重新找一个"
-        Timer1.Enabled = False
-        Timer2.Enabled = False
-        Timer3.Enabled = True
-        xs = True
-        sb = 0
-        Exit Sub
+      lstStatus.AddItem "登录失败，帐号或着密码错误，请重新找一个"
+      Timer1.Enabled = False
+      Timer2.Enabled = False
+      Timer3.Enabled = True
+      xs = True
+      sb = 0
+      Exit Sub
     End If
     If xs = True Then
-        wshshell.SendKeys "{Tab}"
-          Sleep 100
+      wshshell.SendKeys "{Tab}"
+      Sleep 100
     End If
     xs = False
     Clipboard.Clear
-    Clipboard.SetText Text1.Text
+    Clipboard.SetText txtNo.Text
     wshshell.SendKeys "{Backspace 20}"
     Sleep 500
     wshshell.SendKeys "^{v}"
     wshshell.SendKeys "{Tab}"
     Sleep 500
     Clipboard.Clear
-    Clipboard.SetText Text2.Text
+    Clipboard.SetText txtPass.Text
     wshshell.SendKeys "^{v}"
     wshshell.SendKeys "{Tab}"
     wshshell.SendKeys "{enter}"
@@ -635,77 +611,103 @@ If a <> 0 And Text1.Text <> "" Then
     success = True
     sj = 0
     sb = sb + 1
-Else
+  Else
     sj = sj + 1
     If sj = 3 And success = True Then
-        Timer1.Enabled = True
-        Timer2.Enabled = False
-        Timer3.Enabled = False
-        List1.AddItem "于" & Time & "登录成功。"
-        sj = 0
-        success = False
+      Timer1.Enabled = True
+      Timer2.Enabled = False
+      Timer3.Enabled = False
+      lstStatus.AddItem "于" & Time & "登录成功。"
+      sj = 0
+      success = False
     End If
     If sj > 3 Then
-        Timer1.Enabled = False
-        Timer2.Enabled = False
-        Timer3.Enabled = True
+      Timer1.Enabled = False
+      Timer2.Enabled = False
+      Timer3.Enabled = True
     End If
-End If
+  End If
 End Sub
 
 Private Sub Timer3_Timer()
-a = FindWindow(vbNullString, "迅雷7登录") '得到登录界面句柄
-    If a = 0 Then
-    Timer3.Enabled = False
-    Timer2.Enabled = True
-    Timer1.Enabled = False
-End If
+  hwdThunder = FindWindow(vbNullString, "迅雷7登录") '得到登录界面句柄
+  If hwdThunder = 0 Then
+  Timer3.Enabled = False
+  Timer2.Enabled = True
+  Timer1.Enabled = False
+  End If
 End Sub
 
 Private Sub buzhou1() '获取最新帐号分享的网页源码，第二次
-Dim mubiao As String
-List1.AddItem "获取网页源码成功  " & Time
-List1.AddItem "正在提取最新更新网址  " & Time
-If Text3.Text <> "" Then
+  Dim mubiao As String
+  Dim url As String
+  Dim beginPos As Long
+  Dim myhtml As New HTMLDocument
+  Dim ems As IHTMLElementCollection
+  Dim item As IHTMLAnchorElement
+  Dim i As Long
+  Dim article As String
+  
+  lstStatus.AddItem "[" & Time & "]获取网页源码成功"
+  lstStatus.AddItem "[" & Time & "]正在提取最新更新网址"
+  
+  If mMainPageCode <> "" Then
     mubiao = Format(Date, "yyyy-mm-dd")
-    Set xmlHTTP1 = CreateObject("Microsoft.XMLHTTP")
+    myhtml.body.innerHTML = mMainPageCode
+    Set ems = myhtml.getElementsByTagName("em")
+    If ems.length > 0 Then
+      For i = 0 To ems.length - 1
+        If ems(i).innerText = mubiao Then
+          Set item = ems(i).parentNode.parentNode.childNodes(1)
+          article = item.pathname
+          Exit For
+        End If
+      Next i
+      If i = ems.length Then
+        Exit Sub
+      End If
+    End If
     
-    xmlHTTP1.Open "get", "http://www.521xunlei.com/" & Mid(Mid(Text3.Text, InStr(Text3.Text, mubiao), 200), InStr(Mid(Text3.Text, InStr(Text3.Text, mubiao), 200), "thread"), 20), True
-    List1.AddItem "提取成功  " & Time
-    List1.AddItem "http://www.521xunlei.com/" & Mid(Mid(Text3.Text, InStr(Text3.Text, mubiao), 200), InStr(Mid(Text3.Text, InStr(Text3.Text, mubiao), 200), "thread"), 20)
-    xmlHTTP1.send
-    While xmlHTTP1.readyState <> 4
-    DoEvents
-    Wend
-    Text4.Text = xmlHTTP1.responseText
-    Set xmlHTTP1 = Nothing
+    url = "http://www.521xunlei.com/" & article
+    lstStatus.AddItem "[" & Time & "]提取成功"
+    lstStatus.AddItem url
+    mDetailPageCode = web.GetHTMLCode(url)
+    file.WriteLineToTextFile mLogPath, "[Page2]"
+    file.WriteLineToTextFile mLogPath, mDetailPageCode
     buzhou2
-End If
+  End If
 End Sub
+
 Private Sub buzhou2()
-Dim mubiao As String
-List1.AddItem "正在提取帐号和密码  " & Time & "..."
-If Text4.Text <> "" Then
+  Dim mubiao As String
+  lstStatus.AddItem "[" & Time & "]正在提取帐号和密码  " & Time & "..."
+  If mDetailPageCode <> "" Then
     mubiao = "独享不挤迅雷白金会员账号一年只要18元"
-    Text5.Text = Mid(Text4.Text, InStr(Text4.Text, mubiao))
+    mItemCode = Mid(mDetailPageCode, InStr(mDetailPageCode, mubiao))
     buzhou3
-End If
+  End If
 End Sub
+
 Private Sub buzhou3()
-Dim v
-Dim i As Integer
-List1.AddItem "免费会员帐号和密码智能获取完毕  " & Time
-List2.Clear
-If Text5.Text <> "" Then
-    v = Split(Text5.Text, vbCrLf)
-    List2.Clear
-    For i = 10 To 20
+  Dim v
+  Dim i As Integer
+  Dim lineCode As String
+  lstStatus.AddItem "[" & Time & "]免费会员帐号和密码智能获取完毕"
+  lstAccout.Clear
+  If mItemCode <> "" Then
+    v = Split(mItemCode, vbCrLf)
+    Dim line As New HTMLDocument
+    
+    lstAccout.Clear
+    For i = 8 To 20
     If Mid(v(i), 1, 5) = "<font" Then
-        List2.AddItem Replace(Mid(v(i), 21), "</font><br />", "")
+      line.body.innerHTML = v(i)
+      lineCode = line.body.innerText
+      lstAccout.AddItem lineCode
     Else
-        List2.AddItem Replace(v(i), "<br />", "")
+      lstAccout.AddItem Replace(v(i), "<br />", "")
     End If
     Next i
-End If
-List2.Selected(0) = True
+  End If
+  lstAccout.Selected(0) = True
 End Sub
